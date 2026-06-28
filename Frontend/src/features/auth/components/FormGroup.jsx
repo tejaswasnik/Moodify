@@ -1,6 +1,6 @@
 import React from "react";
 
-const FormGroup = ({ label, placeholder, type = "text" }) => {
+const FormGroup = ({ label, placeholder, type = "text", value, onChange }) => {
   const id = label.toLowerCase();
   const displayLabel = label.charAt(0).toUpperCase() + label.slice(1);
 
@@ -13,6 +13,8 @@ const FormGroup = ({ label, placeholder, type = "text" }) => {
         name={id}
         placeholder={placeholder}
         required
+        value={value}
+        onChange={onChange}
         autoComplete={type === "password" ? "new-password" : "on"}
       />
     </div>
