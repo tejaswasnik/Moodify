@@ -4,6 +4,7 @@ const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const AuthRouter = require("./routes/auth.routes");
+const { SongRouter } = require("./routes/song.routes");
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -13,4 +14,5 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", AuthRouter);
+app.use("/api/song", SongRouter);
 module.exports = app;
