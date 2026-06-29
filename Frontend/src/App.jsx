@@ -2,10 +2,13 @@ import { RouterProvider } from "react-router";
 import { router } from "./app.routes";
 import "../src/features/shared/styles/global.scss";
 import { AuthProvider } from "./features/auth/auth.context";
+import { SongProvider } from "./features/home/song.context";
 function App() {
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
+      <SongProvider>
+        <RouterProvider router={router} />
+      </SongProvider>
     </AuthProvider>
   );
 }
