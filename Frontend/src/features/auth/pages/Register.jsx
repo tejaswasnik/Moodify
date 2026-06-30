@@ -9,11 +9,19 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   async function handleSubmit(e) {
     e.preventDefault();
-    await handleRegister({ username, email, password });
-    navigate("/");
+    setError("");
+
+    try {
+      await handleRegister({ username, email, password });
+      navigate("/");
+    } catch (submitError) {
+      console.error(submitError);
+      setError("Unable to create your account. Please try again.");
+    }
   }
   return (
     <main className="register-page">
@@ -46,8 +54,9 @@ const Register = () => {
               setPassword(e.target.value);
             }}
           />
-          <button type="submit" className="button">
-            Register
+          {error ? <p className="form-message form-message--error">{error}</p> : null}
+          <button type="submit" className="button" disabled={loading}>
+            {loading ? "Creating account..." : "Register"}
           </button>
           <p>
             Already have an account? <Link to="/login">Login here</Link>

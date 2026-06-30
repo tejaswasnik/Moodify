@@ -1,5 +1,4 @@
-import React, { useRef, useState, useEffect, useContext } from 'react'
-import { SongContext } from '../song.context'
+import React, { useRef, useState, useEffect } from 'react'
 import { useSong } from '../hooks/useSong'
 import './player.scss'
 
@@ -25,6 +24,7 @@ const Player = () => {
     const [volume, setVolume] = useState(1)
     const [showSpeed, setShowSpeed] = useState(false)
     const [isMuted, setIsMuted] = useState(false)
+    const hasSong = Boolean(song?.url)
 
     // Reset player when song changes
     useEffect(() => {
@@ -38,6 +38,7 @@ const Player = () => {
     const togglePlay = () => {
         const audio = audioRef.current
         if (!audio) return
+        if (!hasSong) return
         if (isPlaying) {
             audio.pause()
         } else {
@@ -48,7 +49,7 @@ const Player = () => {
 
     const skip = (secs) => {
         const audio = audioRef.current
-        if (!audio) return
+        if (!audio || !hasSong) return
         audio.currentTime = Math.min(Math.max(audio.currentTime + secs, 0), duration)
     }
 
@@ -61,6 +62,7 @@ const Player = () => {
     }
 
     const handleProgressClick = (e) => {
+        if (!hasSong) return
         const bar = progressRef.current
         const rect = bar.getBoundingClientRect()
         const ratio = (e.clientX - rect.left) / rect.width
@@ -71,6 +73,7 @@ const Player = () => {
 
     const handleSpeedChange = (s) => {
         setSpeed(s)
+        if (!audioRef.current) return
         audioRef.current.playbackRate = s
         setShowSpeed(false)
     }
@@ -78,12 +81,15 @@ const Player = () => {
     const handleVolume = (e) => {
         const val = parseFloat(e.target.value)
         setVolume(val)
-        audioRef.current.volume = val
+        if (audioRef.current) {
+            audioRef.current.volume = val
+        }
         setIsMuted(val === 0)
     }
 
     const toggleMute = () => {
         const audio = audioRef.current
+        if (!audio || !hasSong) return
         if (isMuted) {
             audio.volume = volume || 0.5
             setIsMuted(false)
@@ -112,11 +118,17 @@ const Player = () => {
 
             {/* Poster + Info */}
             <div className="player__info">
-                <img
-                    className="player__poster"
-                    src={song?.posterUrl || ""}
-                    alt={song?.title || "No song loaded"}
-                />
+                {hasSong ? (
+                    <img
+                        className="player__poster"
+                        src={song?.posterUrl || ""}
+                        alt={song?.title || "No song loaded"}
+                    />
+                ) : (
+                    <div className="player__poster player__poster--placeholder" aria-hidden="true">
+                        <span>♪</span>
+                    </div>
+                )}
                 <div className="player__meta">
                     <p className="player__title">{song?.title || "No song selected"}</p>
                     <span className="player__mood">{song?.mood || "Detect a mood to load music"}</span>
@@ -146,6 +158,7 @@ const Player = () => {
                         className="player__btn player__btn--speed"
                         onClick={() => setShowSpeed(!showSpeed)}
                         title="Playback speed"
+                        disabled={!hasSong}
                     >
                         {speed}×
                     </button>
@@ -165,7 +178,7 @@ const Player = () => {
                 </div>
 
                 {/* Backward 5s */}
-                <button className="player__btn player__btn--skip" onClick={() => skip(-5)} title="Back 5s">
+                <button className="player__btn player__btn--skip" onClick={() => skip(-5)} title="Back 5s" disabled={!hasSong}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
                         <path d="M1 4v6h6"/>
                         <path d="M3.51 15a9 9 0 1 0 .49-3.6"/>
@@ -174,7 +187,7 @@ const Player = () => {
                 </button>
 
                 {/* Play / Pause */}
-                <button className="player__btn player__btn--play" onClick={togglePlay} title={isPlaying ? 'Pause' : 'Play'}>
+                <button className="player__btn player__btn--play" onClick={togglePlay} title={isPlaying ? 'Pause' : 'Play'} disabled={!hasSong}>
                     {isPlaying ? (
                         <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
                             <rect x="6" y="4" width="4" height="16" rx="1"/>
@@ -188,7 +201,7 @@ const Player = () => {
                 </button>
 
                 {/* Forward 5s */}
-                <button className="player__btn player__btn--skip" onClick={() => skip(5)} title="Forward 5s">
+                <button className="player__btn player__btn--skip" onClick={() => skip(5)} title="Forward 5s" disabled={!hasSong}>
                     <span>5s</span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
                         <path d="M23 4v6h-6"/>
@@ -198,7 +211,7 @@ const Player = () => {
 
                 {/* Volume */}
                 <div className="player__volume">
-                    <button className="player__btn player__btn--vol" onClick={toggleMute} title="Mute">
+                    <button className="player__btn player__btn--vol" onClick={toggleMute} title="Mute" disabled={!hasSong}>
                         {isMuted || volume === 0 ? (
                             <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                                 <path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.87 8.87 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0 0 17.73 18L19 19.27 20.27 18 5.27 3 4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
@@ -217,6 +230,7 @@ const Player = () => {
                         value={isMuted ? 0 : volume}
                         onChange={handleVolume}
                         className="player__volume-slider"
+                        disabled={!hasSong}
                     />
                 </div>
             </div>

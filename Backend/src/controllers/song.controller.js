@@ -29,16 +29,33 @@ async function uploadSong(req, res) {
     song,
   });
 }
-
 async function getSong(req, res) {
-  const { mood } = req.query;
-  const song = await songModel.findOne({
-    mood,
-  });
+  try {
+    const { mood } = req.query;
 
-  res.status(200).json({
-    message: "song fetched successfully.",
-    song,
-  });
+    const songs = await songModel.aggregate([
+      {
+        $match: { mood },
+      },
+      {
+        $sample: { size: 1 },
+      },
+    ]);
+
+    if (!songs.length) {
+      return res.status(404).json({
+        message: "No songs found for this mood.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Song fetched successfully.",
+      song: songs[0],
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
 }
 module.exports = { uploadSong, getSong };

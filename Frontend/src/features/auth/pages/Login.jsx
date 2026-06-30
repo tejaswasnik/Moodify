@@ -8,11 +8,19 @@ const Login = () => {
   const { loading, handleLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   async function handleSubmit(e) {
     e.preventDefault();
-    await handleLogin({ email, password });
-    navigate("/");
+    setError("");
+
+    try {
+      await handleLogin({ email, password });
+      navigate("/");
+    } catch (submitError) {
+      console.error(submitError);
+      setError("Unable to sign in. Check your details and try again.");
+    }
   }
   return (
     <main className="login-page">
@@ -33,8 +41,9 @@ const Login = () => {
             placeholder="Enter your password"
             type="password"
           />
-          <button type="submit" className="button">
-            Login
+          {error ? <p className="form-message form-message--error">{error}</p> : null}
+          <button type="submit" className="button" disabled={loading}>
+            {loading ? "Signing in..." : "Login"}
           </button>
           <p>
             Don't have an account? <Link to="/register">Register here</Link>

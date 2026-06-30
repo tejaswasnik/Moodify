@@ -10,7 +10,10 @@ export async function register({ username, email, password }) {
     const response = await api.post("/register", { username, email, password });
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    throw {
+      status: error.response?.status,
+      ...(error.response?.data || { message: "Request failed" }),
+    };
   }
 }
 
@@ -19,7 +22,10 @@ export async function login({ username, email, password }) {
     const response = await api.post("/login", { username, email, password });
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    throw {
+      status: error.response?.status,
+      ...(error.response?.data || { message: "Request failed" }),
+    };
   }
 }
 
@@ -28,7 +34,10 @@ export async function getMe() {
     const response = await api.get("/getme");
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    throw {
+      status: error.response?.status,
+      ...(error.response?.data || { message: "Request failed" }),
+    };
   }
 }
 
@@ -37,6 +46,9 @@ export async function logout() {
     const response = await api.post("/logout");
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    throw {
+      status: error.response?.status,
+      ...(error.response?.data || { message: "Request failed" }),
+    };
   }
 }
