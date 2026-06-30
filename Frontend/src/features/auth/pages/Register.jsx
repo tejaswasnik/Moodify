@@ -17,7 +17,7 @@ const Register = () => {
 
     try {
       await handleRegister({ username, email, password });
-      navigate("/");
+      navigate("/home");
     } catch (submitError) {
       console.error(submitError);
       setError("Unable to create your account. Please try again.");

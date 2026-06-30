@@ -16,7 +16,7 @@ const Login = () => {
 
     try {
       await handleLogin({ email, password });
-      navigate("/");
+      navigate("/home");
     } catch (submitError) {
       console.error(submitError);
       setError("Unable to sign in. Check your details and try again.");

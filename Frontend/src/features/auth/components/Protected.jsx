@@ -8,7 +8,7 @@ const Protected = ({ children }) => {
     return <h1>Loading</h1>;
   }
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   return children;
